@@ -196,25 +196,25 @@ regions_data = {
 count = 0
 
 # ==============================================================================
-# 0) 루트 메인 페이지 (index.html) - 스팸 키워드 배제
+# 0) 루트 메인 페이지 (index.html) - 지역 나열 배제 및 깔끔한 브랜드 SEO
 # ==============================================================================
 root_gu_links = [f'<a class="neighbor-card" href="/{k}/"><b>{v["name"]} 전지역</b> 바로가기 ➔</a>' for k, v in regions_data.items()]
 root_page = template_content
 root_page = root_page.replace("{{BREADCRUMBS}}", f'<span>{BRAND_NAME} 공식 홈</span>')
-root_page = root_page.replace("{{PAGE_TITLE}}", f"{BRAND_NAME} | 서울·경기·인천·충청 24시 방문 홈케어 테라피")
-root_page = root_page.replace("{{PAGE_DESC}}", "서울, 경기, 인천, 천안, 아산, 대전, 청주 전지역 24시간 100% 안심 후불제 프라이빗 힐링 테라피. 전화 한 통으로 25분 내 신속 방문 안내.")
+root_page = root_page.replace("{{PAGE_TITLE}}", f"{BRAND_NAME} | 수도권·충청 24시 프리미엄 방문 홈케어 테라피")
+root_page = root_page.replace("{{PAGE_DESC}}", "수도권 및 충청 주요 권역 24시간 100% 안심 후불제 프라이빗 힐링 테라피. 아로디시·스웨디시 1:1 방문 케어 안내.")
 root_page = root_page.replace("{{CANONICAL_URL}}", f"{BASE_URL}/")
-root_page = root_page.replace("{{REGION_NAME}}", "서울·경기·인천·천안·아산·대전·청주 전지역")
+root_page = root_page.replace("{{REGION_NAME}}", "수도권·충청 전지역")
 root_page = root_page.replace("{{SUB_NAV_TITLE}}", "📍 서비스 광역 권역 선택")
 root_page = root_page.replace("{{neighborhood_links}}", "\n".join(root_gu_links))
 
 with open("index.html", "w", encoding="utf-8") as f:
     f.write(root_page)
 count += 1
-print("✅ 메인 루트 index.html 생성 완료 (스팸 키워드 배제)")
+print("✅ 메인 루트 index.html 생성 완료 (지역 나열 스팸 방지 타이틀 적용)")
 
 # ==============================================================================
-# 1) 광역 페이지
+# 1) 광역 페이지 (/seoul/, /gyeonggi/, /cheonan/ 등)
 # ==============================================================================
 for sido_key, sido_val in regions_data.items():
     sido_dir = sido_key
@@ -237,7 +237,7 @@ for sido_key, sido_val in regions_data.items():
     count += 1
 
 # ==============================================================================
-# 2) 구/시 단위 페이지
+# 2) 구/시 단위 페이지 (/seoul/gangnam/, /cheonan/seobuk/ 등)
 # ==============================================================================
 for sido_key, sido_val in regions_data.items():
     for gu_key, gu_info in sido_val["gus"].items():
@@ -261,7 +261,7 @@ for sido_key, sido_val in regions_data.items():
         count += 1
 
 # ==============================================================================
-# 3) 읍/면/동 세부 페이지
+# 3) 읍/면/동 세부 페이지 (/seoul/gangnam/역삼동/, /cheonan/seobuk/불당동/ 등)
 # ==============================================================================
 for sido_key, sido_val in regions_data.items():
     for gu_key, gu_info in sido_val["gus"].items():
@@ -287,4 +287,4 @@ for sido_key, sido_val in regions_data.items():
                 f.write(page)
             count += 1
 
-print(f"\n>> [{BRAND_NAME}] 신규 차별화 SEO 규격 최적화 완료! 총 {count}개 페이지 빌드 완료.")
+print(f"\n>> [{BRAND_NAME}] 수도권·충청 최적화 완료! 총 {count}개 페이지 빌드 완료.")
