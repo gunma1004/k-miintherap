@@ -3,13 +3,13 @@ import datetime
 import urllib.parse
 
 # 실제 배포 도메인 주소 (끝에 슬래시 제외)
-BASE_URL = "https://tonight-therapy.netlify.app"
+BASE_URL = "https://k-miintherapy.netlify.app"
 
 # 파일 저장 경로
 SITEMAP_FILE = "sitemap.xml"
 ROBOTS_FILE = "robots.txt"
 
-# generate_pages.py와 100% 동기화된 서울, 경기, 인천 지역 데이터
+# generate_pages.py와 100% 동기화된 서울, 경기, 인천, 천안, 아산, 대전, 청주 지역 데이터
 regions_data = {
     "seoul": {
         "gus": {
@@ -88,6 +88,34 @@ regions_data = {
             "ganghwa": ["강화읍", "선원면", "불은면", "길상면", "화도면", "마니산", "동막해변"],
             "ongjin": ["영흥도", "백령면", "대청면", "연평면", "덕적면", "자월면", "북도면"]
         }
+    },
+    "cheonan": {
+        "gus": {
+            "seobuk": ["두정동", "백석동", "불당동", "신불당", "성정동", "쌍용동", "와촌동", "성성동", "차암동", "직산읍", "성환읍", "입장면"],
+            "dongnam": ["신부동", "원성동", "구성동", "청수동", "청당동", "삼룡동", "다가동", "봉명동", "안서동", "목천읍", "신방동"]
+        }
+    },
+    "asan": {
+        "gus": {
+            "asan_main": ["온천동", "모종동", "배방읍", "탕정면", "음봉면", "둔포면", "신창면", "권곡동", "용화동", "풍기동", "장재리"]
+        }
+    },
+    "daejeon": {
+        "gus": {
+            "seogu": ["둔산동", "월평동", "갈마동", "탄방동", "괴정동", "가장동", "도마동", "정림동", "복수동", "관저동", "가수원동", "도안동", "만년동"],
+            "yuseong": ["봉명동", "온천동", "장대동", "궁동", "어은동", "신성동", "전민동", "관평동", "송강동", "원신흥동", "상대동", "노은동", "지족동", "반석동", "덕명동"],
+            "junggu": ["은행동", "선화동", "대흥동", "오류동", "태평동", "유천동", "문화동", "산성동", "용두동"],
+            "donggu": ["용전동", "가양동", "자양동", "판암동", "신안동", "대동", "삼성동", "홍도동", "효동", "산내동"],
+            "daedeok": ["오정동", "송촌동", "중리동", "비래동", "법동", "신탄진동", "석봉동", "목상동", "덕암동"]
+        }
+    },
+    "cheongju": {
+        "gus": {
+            "heungdeok": ["복대동", "가경동", "봉명동", "송절동", "강서동", "비하동", "운천동", "신봉동", "오송읍", "옥산면"],
+            "seowon": ["사직동", "사창동", "모충동", "산남동", "분평동", "수곡동", "성화동", "개신동", "죽림동", "남이면", "현도면"],
+            "cheongwon": ["율량동", "사천동", "우암동", "내덕동", "주성동", "오창읍", "내수읍", "북이면"],
+            "sangdang": ["용암동", "금천동", "영운동", "탑동", "대성동", "문화동", "서운동", "남문로", "북문로", "방서동", "동남지구"]
+        }
     }
 }
 
@@ -99,11 +127,11 @@ def generate_sitemap_and_robots():
     urls.append((f"{BASE_URL}/", today, "daily", "1.0"))
     
     for sido_key, sido_val in regions_data.items():
-        # 2. 광역 페이지 (예: /seoul/)
+        # 2. 광역 페이지 (예: /cheonan/, /daejeon/)
         urls.append((f"{BASE_URL}/{sido_key}/", today, "weekly", "0.9"))
         
         for gu_key, dongs in sido_val["gus"].items():
-            # 3. 구/시 단위 페이지 (예: /seoul/gangnam/)
+            # 3. 구/시 단위 페이지 (예: /cheonan/seobuk/)
             urls.append((f"{BASE_URL}/{sido_key}/{gu_key}/", today, "weekly", "0.8"))
             
             for dong in dongs:

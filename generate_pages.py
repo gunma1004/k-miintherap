@@ -1,5 +1,4 @@
 import os
-import random
 import hashlib
 import urllib.parse
 
@@ -10,61 +9,63 @@ if not os.path.exists("template.html"):
 with open("template.html", "r", encoding="utf-8") as f:
     template_content = f.read()
 
-# 신규 도메인 주소
-BASE_URL = "https://tonight-therapy.netlify.app"
+BASE_URL = "https://k-miintherapy.netlify.app"
+BRAND_NAME = "한국미인테라피"
 
 # ==============================================================================
-# 1. 25가지 스팸 회피형 혼합 패턴 (출장과 마사지 사이에 지역·수식어 교차 배치)
+# 1. 한국미인테라피 전용 25가지 신규 스팸 회피 패턴 (이전 사이트와 100% 분리)
 # ==============================================================================
 MIXED_KEYWORD_PATTERNS = [
-    "{loc} 출장 힐링 마사지",
-    "출장 {loc} 힐링 마사지",
-    "{loc} 출장 안심 마사지",
-    "출장 {loc} 릴렉스 마사지",
-    "{loc} 출장 스웨디시 마사지",
-    "출장 {loc} 스웨디시 마사지",
-    "출장 프리미엄 {loc} 마사지",
-    "{loc} 출장 아로마 마사지",
-    "출장 {loc} 아로마 마사지",
-    "출장 홈케어 {loc} 마사지",
-    "{loc} 출장 홈타이 마사지",
-    "출장 {loc} 홈타이 마사지",
-    "프라이빗 {loc} 출장 케어 마사지",
-    "{loc} 출장 1:1 맞춤 마사지",
-    "출장 {loc} 1:1 맞춤 마사지",
-    "출장 감성 테라피 {loc} 마사지",
-    "{loc} 출장 호텔식 힐링 마사지",
-    "출장 {loc} 야간 힐링 마사지",
-    "전신 피로회복 출장 {loc} 마사지",
-    "{loc} 출장 딥티슈 릴렉싱 마사지",
-    "출장 {loc} 바디 밸런스 마사지",
-    "24시 {loc} 출장 힐링 마사지",
-    "출장 전문 테라피스트 {loc} 마사지",
-    "{loc} 출장 감성 로드 힐링 마사지",
-    "출장 {loc} 방문 홈케어 마사지"
+    "{loc} 출장 아로디시 마사지",
+    "출장 {loc} 아로디시 마사지",
+    "{loc} 출장 감성 스웨디시 마사지",
+    "출장 {loc} 프리미엄 스웨디시 마사지",
+    "출장 바디케어 {loc} 마사지",
+    "{loc} 출장 VIP 릴렉싱 마사지",
+    "출장 {loc} 전신 힐링 마사지",
+    "출장 딥티슈 케어 {loc} 마사지",
+    "{loc} 출장 한국인 스페셜 마사지",
+    "출장 {loc} 호텔식 감성 마사지",
+    "프라이빗 {loc} 출장 바디 마사지",
+    "{loc} 출장 에스테틱 케어 마사지",
+    "출장 {loc} 1:1 맞춤 테라피 마사지",
+    "야간 {loc} 출장 아로디시 마사지",
+    "출장 피로회복 {loc} 마사지",
+    "{loc} 출장 림프 릴렉스 마사지",
+    "출장 {loc} 정통 오일 마사지",
+    "24시 {loc} 출장 스웨디시 마사지",
+    "출장 럭셔리 홈케어 {loc} 마사지",
+    "{loc} 출장 프로 테라피스트 마사지",
+    "출장 {loc} 안심 후불 마사지",
+    "감성 힐링 {loc} 출장 마사지",
+    "{loc} 출장 힐링 바디 마사지",
+    "출장 {loc} 시그니처 뷰티 마사지",
+    "출장 1:1 프라이빗 {loc} 마사지"
 ]
 
+# 제목 끝 수식어 (할인 혜택 및 신규 코스 반영)
 TITLE_SUFFIXES = [
-    "24시 빠른방문 | 오늘밤테라피",
-    "100% 후불 안심예약 | 오늘밤테라피",
-    "프라이빗 힐링케어 | 오늘밤테라피",
-    "전문 테라피스트 안내 | 오늘밤테라피",
-    "코스별 힐링 안내 | 오늘밤테라피",
-    "25분 신속방문 | 오늘밤테라피"
+    f"최대 18% 할인 | {BRAND_NAME}",
+    f"24시 전지역 빠른도착 | {BRAND_NAME}",
+    f"100% 후불제 안심예약 | {BRAND_NAME}",
+    f"호텔·자택 1:1 케어 | {BRAND_NAME}",
+    f"시그니처 아로디시 안내 | {BRAND_NAME}",
+    f"숙련된 테라피스트 배정 | {BRAND_NAME}"
 ]
 
+# 설명문 (새로운 문장 구조 및 톤앤매너)
 LOCAL_DESC_TEMPLATES = [
-    "{loc} 전지역 24시간 100% 안심 후불제 {keyword}. 피로를 풀어드리는 1:1 맞춤 방문 힐링 케어.",
-    "자택·호텔 어디든 25분 내 신속 방문하는 {keyword}. 선입금 없는 안전한 정찰제 예약 안내.",
-    "지친 일상에 편안한 휴식을 선사하는 {keyword}. 전문 테라피스트의 프라이빗 홈케어 프로그램.",
-    "{loc} 인근 24시 언제나 편하게 이용하는 {keyword}. 아로마·건식·스웨디시 안심 후불제 운영.",
-    "내 공간에서 안전하게 누리는 프리미엄 케어, {keyword}. 전화 한 통으로 신속 배정 및 방문.",
-    "{keyword} 추천 안내. 숙련된 관리사의 정성스러운 테라피와 철저한 위생 관리를 보장합니다."
+    "{loc} 인근 24시간 언제나 편하게 누리는 {keyword}. 아로디시 및 스웨디시 전 코스 정찰제 특별 할인 혜택.",
+    "선입금 없는 100% 정직한 후불제 {keyword}. {loc} 전지역 전화 한 통으로 25분 이내 신속 방문 배정.",
+    "내 집, 호텔 어디서든 편안하게 즐기는 {keyword}. 전문 테라피스트의 정성 어린 손길로 누적된 피로를 완화하세요.",
+    "{loc} 1:1 맞춤 프라이빗 케어 {keyword}. 투명한 코스 안내와 차별화된 감성 테라피 프로그램을 경험해보세요.",
+    "품격 있는 힐링의 시작, {loc} 일대 {keyword} 안내. 위생 관리와 쾌적한 릴렉싱으로 최상의 컨디션을 되찾아드립니다.",
+    "{keyword} 공식 추천. 합리적인 코스 요금과 숙련된 관리사의 프리미엄 테라피 서비스를 {loc} 어디서나 만나보세요."
 ]
 
 def generate_local_seo(loc_name):
-    # 재실행 시에도 동일 지역은 같은 문구를 유지하도록 고유 해시값 사용
-    hash_val = int(hashlib.md5(loc_name.encode("utf-8")).hexdigest(), 16)
+    # kmiin_ 접두어를 포함한 복합 해시로 이전 사이트와 패턴 매칭 순서 완전 차별화
+    hash_val = int(hashlib.md5(f"kmiin_{loc_name}".encode("utf-8")).hexdigest(), 16)
     keyword = MIXED_KEYWORD_PATTERNS[hash_val % len(MIXED_KEYWORD_PATTERNS)].format(loc=loc_name)
     suffix = TITLE_SUFFIXES[(hash_val // 10) % len(TITLE_SUFFIXES)]
     desc_tmpl = LOCAL_DESC_TEMPLATES[(hash_val // 100) % len(LOCAL_DESC_TEMPLATES)]
@@ -74,7 +75,7 @@ def generate_local_seo(loc_name):
     return {"title": title, "desc": desc}
 
 # ==============================================================================
-# 2. 서울, 경기, 인천 지역 데이터
+# 2. 광역 지역 데이터 (서울, 경기, 인천, 천안, 아산, 대전, 청주)
 # ==============================================================================
 regions_data = {
     "seoul": {
@@ -157,31 +158,63 @@ regions_data = {
             "ganghwa": {"name": "강화군", "dongs": ["강화읍", "선원면", "불은면", "길상면", "화도면", "마니산", "동막해변"]},
             "ongjin": {"name": "옹진군", "dongs": ["영흥도", "백령면", "대청면", "연평면", "덕적면", "자월면", "북도면"]}
         }
+    },
+    "cheonan": {
+        "name": "천안",
+        "gus": {
+            "seobuk": {"name": "서북구", "dongs": ["두정동", "백석동", "불당동", "신불당", "성정동", "쌍용동", "와촌동", "성성동", "차암동", "직산읍", "성환읍", "입장면"]},
+            "dongnam": {"name": "동남구", "dongs": ["신부동", "원성동", "구성동", "청수동", "청당동", "삼룡동", "다가동", "봉명동", "안서동", "목천읍", "신방동"]}
+        }
+    },
+    "asan": {
+        "name": "아산",
+        "gus": {
+            "asan_main": {"name": "아산시", "dongs": ["온천동", "모종동", "배방읍", "탕정면", "음봉면", "둔포면", "신창면", "권곡동", "용화동", "풍기동", "장재리"]}
+        }
+    },
+    "daejeon": {
+        "name": "대전",
+        "gus": {
+            "seogu": {"name": "서구", "dongs": ["둔산동", "월평동", "갈마동", "탄방동", "괴정동", "가장동", "도마동", "정림동", "복수동", "관저동", "가수원동", "도안동", "만년동"]},
+            "yuseong": {"name": "유성구", "dongs": ["봉명동", "온천동", "장대동", "궁동", "어은동", "신성동", "전민동", "관평동", "송강동", "원신흥동", "상대동", "노은동", "지족동", "반석동", "덕명동"]},
+            "junggu": {"name": "중구", "dongs": ["은행동", "선화동", "대흥동", "오류동", "태평동", "유천동", "문화동", "산성동", "용두동"]},
+            "donggu": {"name": "동구", "dongs": ["용전동", "가양동", "자양동", "판암동", "신안동", "대동", "삼성동", "홍도동", "효동", "산내동"]},
+            "daedeok": {"name": "대덕구", "dongs": ["오정동", "송촌동", "중리동", "비래동", "법동", "신탄진동", "석봉동", "목상동", "덕암동"]}
+        }
+    },
+    "cheongju": {
+        "name": "청주",
+        "gus": {
+            "heungdeok": {"name": "흥덕구", "dongs": ["복대동", "가경동", "봉명동", "송절동", "강서동", "비하동", "운천동", "신봉동", "오송읍", "옥산면"]},
+            "seowon": {"name": "서원구", "dongs": ["사직동", "사창동", "모충동", "산남동", "분평동", "수곡동", "성화동", "개신동", "죽림동", "남이면", "현도면"]},
+            "cheongwon": {"name": "청원구", "dongs": ["율량동", "사천동", "우암동", "내덕동", "주성동", "오창읍", "내수읍", "북이면"]},
+            "sangdang": {"name": "상당구", "dongs": ["용암동", "금천동", "영운동", "탑동", "대성동", "문화동", "서운동", "남문로", "북문로", "방서동", "동남지구"]}
+        }
     }
 }
 
 count = 0
 
 # ==============================================================================
-# 0) 루트 메인 페이지 (index.html) - 출장·마사지 스팸 키워드 완전 배제
+# 0) 루트 메인 페이지 (index.html) - 스팸 키워드 배제
 # ==============================================================================
 root_gu_links = [f'<a class="neighbor-card" href="/{k}/"><b>{v["name"]} 전지역</b> 바로가기 ➔</a>' for k, v in regions_data.items()]
 root_page = template_content
-root_page = root_page.replace("{{BREADCRUMBS}}", '<span>오늘밤테라피 공식 홈</span>')
-root_page = root_page.replace("{{PAGE_TITLE}}", "오늘밤테라피 | 서울·경기·인천 24시 방문 홈케어 테라피")
-root_page = root_page.replace("{{PAGE_DESC}}", "서울, 경기, 인천 전지역 24시간 100% 안심 후불제 프라이빗 힐링 테라피. 전화 한 통으로 25분 내 신속 방문 안내.")
+root_page = root_page.replace("{{BREADCRUMBS}}", f'<span>{BRAND_NAME} 공식 홈</span>')
+root_page = root_page.replace("{{PAGE_TITLE}}", f"{BRAND_NAME} | 서울·경기·인천·충청 24시 방문 홈케어 테라피")
+root_page = root_page.replace("{{PAGE_DESC}}", "서울, 경기, 인천, 천안, 아산, 대전, 청주 전지역 24시간 100% 안심 후불제 프라이빗 힐링 테라피. 전화 한 통으로 25분 내 신속 방문 안내.")
 root_page = root_page.replace("{{CANONICAL_URL}}", f"{BASE_URL}/")
-root_page = root_page.replace("{{REGION_NAME}}", "서울·경기·인천 전지역")
+root_page = root_page.replace("{{REGION_NAME}}", "서울·경기·인천·천안·아산·대전·청주 전지역")
 root_page = root_page.replace("{{SUB_NAV_TITLE}}", "📍 서비스 광역 권역 선택")
 root_page = root_page.replace("{{neighborhood_links}}", "\n".join(root_gu_links))
 
 with open("index.html", "w", encoding="utf-8") as f:
     f.write(root_page)
 count += 1
-print("✅ 메인 루트 index.html 생성 완료 (출장·마사지 키워드 완전 배제)")
+print("✅ 메인 루트 index.html 생성 완료 (스팸 키워드 배제)")
 
 # ==============================================================================
-# 1) 광역 페이지 (/seoul/, /gyeonggi/, /incheon/)
+# 1) 광역 페이지
 # ==============================================================================
 for sido_key, sido_val in regions_data.items():
     sido_dir = sido_key
@@ -204,7 +237,7 @@ for sido_key, sido_val in regions_data.items():
     count += 1
 
 # ==============================================================================
-# 2) 구/시 단위 페이지 (/seoul/gangnam/ 등)
+# 2) 구/시 단위 페이지
 # ==============================================================================
 for sido_key, sido_val in regions_data.items():
     for gu_key, gu_info in sido_val["gus"].items():
@@ -228,7 +261,7 @@ for sido_key, sido_val in regions_data.items():
         count += 1
 
 # ==============================================================================
-# 3) 읍/면/동 세부 페이지 (/seoul/gangnam/역삼동/ 등)
+# 3) 읍/면/동 세부 페이지
 # ==============================================================================
 for sido_key, sido_val in regions_data.items():
     for gu_key, gu_info in sido_val["gus"].items():
@@ -254,4 +287,4 @@ for sido_key, sido_val in regions_data.items():
                 f.write(page)
             count += 1
 
-print(f"\n>> [오늘밤테라피] 네이버·구글 SEO 규격 최적화 완료! 총 {count}개 페이지 빌드 완료.")
+print(f"\n>> [{BRAND_NAME}] 신규 차별화 SEO 규격 최적화 완료! 총 {count}개 페이지 빌드 완료.")
